@@ -1,31 +1,11 @@
-#Objective
+# Objective
 - Easier prvilege escalation for an attacker
 - disable securityContext (RunAsUser=0  / allowPrivilegeEscalation=true)       
 
-#Example dockerfile run as user=appuser
-``` 
-FROM openjdk:18-alpine3.15 
-#Run non-root 
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup -h /home/appuser
-\
-# Set the working directory inside the container 
-WORKDIR /app
-
-# set ownership and permissions
-RUN Chown -R appuser:appgroup /app 
-
-# switch to user
-USER appuser 
-
-# Copy the JAR file to the container
-COPY --chown=appuser:appgroup ./target/demo-1.0-SNAPSHOT.jar .
-
-# Set the entrypoint command to run the JAR file
-CMD [""java"", ""-jar"", ""/app/demo-1.0-SNAPSHOT.jar""]
-```
 
 
-## Pod Security Admission
+
+# Pod Security Admission
 #Enforce Pod Security Standards by Configuring the Built-in Admission Controller
 
 ref. https://v1-26.docs.kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/
@@ -149,3 +129,26 @@ pod/security-context-demo created
 
 #You can check standards prfiles(Privileged / Baseline / Restricted) 
 ref. https://kubernetes.io/docs/concepts/security/pod-security-standards/
+
+
+# Example dockerfile run as non-root
+``` 
+FROM openjdk:18-alpine3.15 
+#Run non-root 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup -h /home/appuser
+\
+# Set the working directory inside the container 
+WORKDIR /app
+
+# set ownership and permissions
+RUN Chown -R appuser:appgroup /app 
+
+# switch to user
+USER appuser 
+
+# Copy the JAR file to the container
+COPY --chown=appuser:appgroup ./target/demo-1.0-SNAPSHOT.jar .
+
+# Set the entrypoint command to run the JAR file
+CMD [""java"", ""-jar"", ""/app/demo-1.0-SNAPSHOT.jar""]
+```
