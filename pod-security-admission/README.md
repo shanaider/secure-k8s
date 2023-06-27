@@ -65,18 +65,26 @@ PID   USER     COMMAND
 ref. https://github.com/shanaider/k3d
 
 
-3. create ns my-baseline-namespace and enable policy "baseline"
+3. create ns my-baseline-namespace and enable policy "privileged", "baseline" , "restricted" ,so please select one.
+
 ref. https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-namespace-labels/
+ref. https://v1-26.docs.kubernetes.io/docs/setup/best-practices/enforcing-pod-security-standards/#adopt-a-multi-mode-strategy
+
+
+#Adopt a multi-mode strategy
+
+Blocks any pods that don't satisfy the baseline policy requirements.
+Generates a user-facing warning and adds an audit annotation to any created pod that does not meet the restricted policy requirements.
 ```
 k create ns my-baseline-namespace
 
 kubectl label --overwrite ns my-baseline-namespace \
 pod-security.kubernetes.io/enforce=baseline \
-pod-security.kubernetes.io/enforce-version=latest \
-pod-security.kubernetes.io/warnd=baseline \
-pod-security.kubernetes.io/warn-version=latest \
-pod-security.kubernetes.io/audit=baseline \
-pod-security.kubernetes.io/audit-version=latest
+pod-security.kubernetes.io/enforce-version=v1.27 \
+pod-security.kubernetes.io/warn=restricted \
+pod-security.kubernetes.io/warn-version=v1.27 \
+pod-security.kubernetes.io/audit=restricted \
+pod-security.kubernetes.io/audit-version=v1.27
 
 ```
 
@@ -104,7 +112,7 @@ spec:
       mountPath: /data/demo
     securityContext:
       privileged: true
-      #allowPrivilegeEscalation: true
+      allowPrivilegeEscalation: true
 ```
 
 ```
@@ -117,11 +125,16 @@ k create -f pod-allow.yaml
 #Because "baseline" profile do not allow securityContext.privileged = true
 ```
 k create -f pod-deny.yaml
+
 Error from server (Forbidden): error when creating "pod-deny.yaml": pods "security-context-demo" is forbidden: violates PodSecurity "baseline:latest": privileged (container "sec-ctx-demo" must not set securityContext.privileged=true)
 ```
 
+
+#๋just warning on "restricted" profile but are otherwise allowed.
 ```
-k create -f pod-allow.yaml
+k create -f pod-allow.yaml 
+
+Warning: would violate PodSecurity "restricted:v1.27": allowPrivilegeEscalation != false (container "sec-ctx-demo" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "sec-ctx-demo" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "sec-ctx-demo" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "sec-ctx-demo" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
 pod/security-context-demo created
 ```
 

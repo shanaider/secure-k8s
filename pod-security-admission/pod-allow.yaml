@@ -19,4 +19,4 @@ spec:
       mountPath: /data/demo
     securityContext:
       privileged: false
-      #allowPrivilegeEscalation: true
+      allowPrivilegeEscalation: true
