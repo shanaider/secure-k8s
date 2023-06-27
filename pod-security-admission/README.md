@@ -144,7 +144,7 @@ pod/security-context-demo created
 ref. https://kubernetes.io/docs/concepts/security/pod-security-standards/
 
 
-# Example dockerfile run as non-root
+## Example dockerfile run as non-root
 ``` 
 FROM openjdk:18-alpine3.15 
 #Run non-root 
